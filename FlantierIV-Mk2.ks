@@ -360,14 +360,6 @@ orbitNode().
 
 executeBurnNodev2().
 
-pushMasterStatus("Press R to continue").
-
-WAIT UNTIL RCS.
-WAIT 0.1.
-RCS OFF.
-
-correctionOrbite().
-
 // Compte à rebours déco autopilote
 FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
     pushMasterStatus("Autopilot disconnect in " + countdown).
