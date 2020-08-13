@@ -224,12 +224,12 @@ function comparaisonPourcent {
 }
 
 function orbitTransfer {
+	parameter wantedAlt. // TODO : user input function pour wantedAlt
+
 	local currentA is (body:radius * 2 + apoapsis + periapsis) / 2.
 	local currentApVel is (body:mu * ((2 / (body:radius + apoapsis)) - (1 / currentA)))^0.5.
 	local currentPeVel is (body:mu * ((2 / (body:radius + periapsis)) - (1 / currentA)))^0.5.
 	
-	// TODO : user input function pour wantedAlt
-	local wantedAlt is 250000.
 	local velOrbitB is ((body:mu * (1 / (body:radius + wantedAlt))) ^ 0.5).
 
 	local transferAp is body:radius + wantedAlt.
@@ -359,6 +359,8 @@ jettisonCoiffe().
 orbitNode().
 
 executeBurnNodev2().
+
+// orbitTransfer(250000).
 
 // Compte à rebours déco autopilote
 FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
