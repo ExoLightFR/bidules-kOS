@@ -13,7 +13,7 @@ En fait on m'appelle l'Elon Musk Français.
 
 **DOCUMENTATION kOS :** https://ksp-kos.github.io/KOS/
 
-Comment que ça marche Github en fait ? https://guides.github.com/activities/hello-world/
+Comment que ça marche Github en fait ? Pour être honnête, je sais pas trop. Mais j'ai trouvé ce guide sympa, là : https://guides.github.com/activities/hello-world/
 
 ###### Orbite de transfert (Transfert de Hohmann) :
 
