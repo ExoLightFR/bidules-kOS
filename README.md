@@ -20,7 +20,5 @@ Comment que ça marche Github en fait ? https://guides.github.com/activities/hel
 - Équation de la force vive (allez aussi voir la page en Anglais) : https://fr.wikipedia.org/wiki/%C3%89quation_de_la_force_vive
 - Demi grand axe d'une ellipse : https://en.wikipedia.org/wiki/Semi-major_and_semi-minor_axes
 - Mes calcus tout nazes de démonstration d'une orbite de transfert : https://cdn.discordapp.com/attachments/565800458158080000/743080082708627566/20200812_141417.jpg
-
 https://cdn.discordapp.com/attachments/565800458158080000/743080097531035648/20200812_141435.jpg
-
 https://cdn.discordapp.com/attachments/565800458158080000/743085450205331516/20200812_143500.jpg
