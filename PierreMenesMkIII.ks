@@ -1,3 +1,5 @@
+// vnjriez bghyire bhgyier hgiuoef hvicxq byuigfb reuy
+
 function createTUIMessageBox {
 	CLEARSCREEN.
 	PRINT "+========================================+".
