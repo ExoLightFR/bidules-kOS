@@ -226,44 +226,58 @@ function comparaisonPourcent {
 function orbitTransfer {
 	local currentA is (body:radius * 2 + apoapsis + periapsis) / 2.
 	local currentApVel is (body:mu * ((2 / (body:radius + apoapsis)) - (1 / currentA)))^0.5.
-	local currentPeVel is (body:mu * ((2 / (periapsis + body:radius)) - (1 / currentA)))^0.5.
+	local currentPeVel is (body:mu * ((2 / (body:radius + periapsis)) - (1 / currentA)))^0.5.
 	
-	// TODO : user input function pour alt orbite B
+	// TODO : user input function pour wantedAlt
 	local wantedAlt is 250000.
 	local velOrbitB is ((body:mu * (1 / (body:radius + wantedAlt))) ^ 0.5).
 
-	local transferAp is wantedAlt + body:radius.
-	local transferPe is periapsis + body:radius.
-	local transferA is ((body:radius * 2 + transferAp + transferPe) / 2).
+	local transferAp is body:radius + wantedAlt.
+	local transferPe is body:radius + periapsis.
+	local transferA is (body:radius * 2 + transferAp + transferPe) / 2.
 
 	local transferApVel is (body:mu * ((2 / transferAp) - (1 / transferA)))^0.5.
 	local transferPeVel is (body:mu * ((2 / transferPe) - (1 / transferA)))^0.5.
 
 	local deltaV1 is transferPeVel - currentPeVel.
 
-	IF ETA:periapsis < 25 {
+	IF ETA:periapsis < 20 { // Sécurité si la périapse est trop proche
+		pushMessage("Periapsis too close, waiting for next orbit").
 		local periapsisTime is time:seconds + ETA:periapsis.
 		WAIT UNTIL time:seconds > periapsisTime + 2.
+		PRINT("Waited until periapis passed").
 	}
 
 	local node1 is NODE(time:seconds+ETA:periapsis, 0, 0, deltaV1).
 	ADD node1.
+	// Idée, mettre les deux nodes en même temps, à la suite ?
+	// Faudrait un AP plus précis pour la pratique mais ça permettrait de vérifier la théorie
 
 	executeBurnNodev2().
-
 	WAIT 5.
+	REMOVE node1.
 
+	// Actualisation des variables, calcul de l'écart en %
 	SET currentA TO (body:radius * 2 + apoapsis + periapsis) / 2.
 	SET currentApVel TO (body:mu * ((2 / (body:radius + apoapsis)) - (1 / currentA)))^0.5.
-	PRINT("Ecart de manoeuvre : " + comparaisonPourcent(transferApVel, currentApVel) + "%").
+	PRINT("Ecart de vélocité : " + comparaisonPourcent(transferApVel, currentApVel) + "%").
+	PRINT("Ecart d'altitude : " + comparaisonPourcent(wantedAlt, apoapsis) + "%").
 
 	local correctedVelOrbitB is (body:mu * (1 / (body:radius + apoapsis))) ^ 0.5.
 	local deltaV2 is correctedVelOrbitB - currentApVel.
 
-	local node2 is NODE(time:seconds+ETA:apoapsis, 0, 0, deltaV2). // PROBLEME : Ne corrige pas les erreurs de pilotage
+	local node2 is NODE(time:seconds+ETA:apoapsis, 0, 0, deltaV2).
 	ADD node2.
 
 	executeBurnNodev2().
+	WAIT 5.
+	REMOVE node2.
+
+	// Actualisation des variables, calcul de l'écart en %
+	SET currentA TO (body:radius * 2 + apoapsis + periapsis) / 2.
+	SET currentPeVel TO (body:mu * ((2 / (body:radius + periapsis)) - (1 / currentA)))^0.5.
+	PRINT("Ecart de vélocité : " + comparaisonPourcent(velOrbitB, currentPeVel) + "%").
+	PRINT("Ecart d'altitude : " + comparaisonPourcent(wantedAlt, periapsis) + "%").
 }
 
 // ==========================================================================================================================================
