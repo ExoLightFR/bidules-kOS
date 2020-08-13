@@ -216,6 +216,30 @@ function orbitNode {
 	ADD node.
 }
 
+function orbitTransfer {
+	local currentA is (body:radius * 2 + apoapsis + periapsis) / 2.
+	local currentApVel is (body:mu * ((2 / (apoapsis + body:radius)) - (1 / currentA)))^0.5.
+	local currentPeVel is (body:mu * ((2 / (periapsis + body:radius)) - (1 / currentA)))^0.5.
+	
+	// TODO : user input function pour alt orbite B
+	local wantedAlt is 250000.
+	local velOrbitB is ((body:mu * (1 / (body:radius + wantedAlt))) ^ 0.5).
+
+	local transferAp is wantedAlt + body:radius.
+	local transferPe is periapsis + body:radius.
+	local transferA is (body:radius * 2 + transferAp + transferPe).
+
+	local transferApVel is (body:mu * ((2 / transferAp) - (1 / transferA)))^0.5.
+	local transferPeVel is (body:mu * ((2 / transferPe) - (1 / transferA)))^0.5.
+
+	local deltaV1 is transferPeVel - currentPeVel.
+	local deltaV2 is velOrbitB - transferApVel.
+
+	local node1 is NODE(time:seconds+ETA:periapsis, 0, 0, deltaV1).
+	local node2 is NODE(time:seconds+ETA:apoapsis, 0, 0, deltaV2). // PROBLEME : Ne corrige pas les erreurs de pilotage
+	ADD node1.
+}
+
 // ==========================================================================================================================================
 // ==========================================================================================================================================
 // ==========================================================================================================================================
