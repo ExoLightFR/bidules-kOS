@@ -360,7 +360,7 @@ orbitNode().
 
 executeBurnNodev2().
 
-// orbitTransfer(250000).
+orbitTransfer(250000).
 
 // Compte à rebours déco autopilote
 FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
