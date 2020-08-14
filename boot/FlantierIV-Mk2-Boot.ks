@@ -42,4 +42,12 @@ ON AG8 {
 	PRESERVE.
 }
 
+// On va peut être changer la méthode de choix des AP sur le boot ?
+ON AG7 {
+	PRINT "Initiating Inter-planetary Transfer Autopilot".
+	WAIT 1.
+	runpath("0:/InterstellarAP.ks").
+	PRESERVE.
+}
+
 WAIT UNTIL False.
