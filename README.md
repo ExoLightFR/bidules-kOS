@@ -8,6 +8,7 @@ En fait on m'appelle l'Elon Musk Français.
 
 ## À faire :
 - AP orbite de transfert (fait, besoin de tester en branche beta)
+- Sécurité par rapport au timewarp (surtout dans l'AP)
 - AP node plus précis
 - Gérer ou savoir calculer les changements d'inclinaison et de centre d'orbite
 - Transferts inter-astres
