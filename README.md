@@ -1,7 +1,12 @@
 # bidules-kOS
 En fait on m'appelle l'Elon Musk Français.
 
-## À FAIRE :
+## ORGANISATION DE LA REPO :
+- **master :** Branche principale, la plus stable. Normalement tout marche dessus.
+- **beta :** Branche de test, celle sur laquelle on push tout le code fini et à tester.
+- Autres branches *(FlantierIV, PierreMenes, etc) : Branches de développement, celles sur lesquelles le code se développe. Une fois le code fini, elles sont merge sur la beta.
+
+## À faire :
 - AP orbite de transfert
 - AP node plus précis
 - Transferts inter-astres
