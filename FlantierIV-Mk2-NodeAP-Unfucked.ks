@@ -50,10 +50,17 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	local isp is 0.
 	local g0 is constant:g0.
 
+	// TODO : meilleur calcul de l'ISP :
+	// sum the mass flow and thrust for all engines
+	// then calculate the ISP from the total thrust and mass flow
 	LIST engines in myEngines.
 	FOR en in myEngines {
 		IF en:ignition and not en:flameout {
-			SET isp to isp + (en:isp * (en:availableThrust / ship:availableThrust)).
+			SET isp to en:isp.
+		}
+
+		ELSE {
+			PRINT "FATAL ERROR : No active engine !".
 		}
 	}
 
@@ -109,6 +116,7 @@ function executeBurnNodev2 {
 		SET burnDuration TO nodeBurnDuration(node). // 
 		SET ThrottSet TO min(burnDuration, 1).
 
+			// TODO : autre moyen de finir le burn pour éviter des délais causés par une boucle ??
 			IF node:burnvector:mag < 0.1 {
 				WAIT UNTIL vdot(initialBurnVector, node:burnvector) < 0.
 				// WAIT UNTIL vang(initialBurnVector, node:burnvector) > 5.
