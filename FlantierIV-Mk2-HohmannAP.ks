@@ -44,37 +44,6 @@ function pushMessage {
 	PRINT str AT(start, line).
 }
 
-function pushMessagev2 {
-	parameter str.
-	parameter line is 3. // La ligne sur laquelle print, 3 par défaut
-	parameter start is 2. // La colonne sur laquelle print, toujours 2 sauf si on veut centrer un message
-
-	IF NOT (defined line1) OR (defined line2) OR (defined line3) OR (defined line4) OR (defined line5) {
-		SET line1 to " ".
-		SET line2 to " ".
-		SET line3 to " ".
-		SET line4 to " ".
-		SET line5 to False.
-	}
-
-	local lineList is LIST(line1, line2, line3, line4, line5).
-	
-
-
-	IF line5 <> False {
-		SET line2 to line1.
-		SET line3 to line2.
-		SET line4 to line3.
-		SET line5 to line4.
-		SET line5 to False.
-	}
-
-	PRINT line1 AT(start, 3).
-	PRINT line2 AT(start, 4).
-	PRINT line3 AT(start, 5).
-	PRINT line4 AT(start, 6).
-}
-
 function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus tard.
 	parameter mnv.
 	local dV is mnv:deltaV:mag.
@@ -95,40 +64,12 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	RETURN burnDuration.
 }
 
-function timeToGoodApoapsis { // On pourrait prendre en compte l'accélération pour avoir une bonne estimation ?...
-	local t is 0.
-	local d is 105000 - ship:apoapsis. // à changer pour la valeur globale de ll'alt donnée par l'user
-	local v is ship:velocity:orbit:mag.
-	SET t TO ROUND (d / v).
-
-	pushMasterStatus("Good Apoapsis in " + t + "s.").
-}
-
 // Met le vaisseau vers le vecteur demandé. Accessoirement, ne marche pas.
 function waitAngle {
 	parameter vector.
 	LOCK steering to vector.
 	WAIT UNTIL vang(ship:facing:forevector, vector) <2.
 }
-
-// function executeBurnNode {
-// 	pushMasterStatus("Node execution mode engaged.").
-// 	local node is nextnode.
-// 	local burnDuration is nodeBurnDuration(node).
-// 	local endBurnTime is time:seconds + node:eta + burnDuration/2.
-// 	PRINT "EndBurnTime : " + endBurnTime.
-// 	PRINT "Time:seconds : " + time:seconds.
-// 	PRINT "Node:eta : " + node:eta.
-// 	PRINT "burnDuration : " + burnDuration.
-// 	WAIT UNTIL node:eta <= (burnDuration/2 + 60).
-// 	SET nosePoint to node:burnvector.
-// 	LOCK steering to nosePoint.
-// 	WAIT UNTIL vang(ship:facing:vector, nosePoint) < 0.25. // TODO : Faire un truc qui abort tout seul la manoeuvre si t'es pas aligné avant le moment de burn
-// 	WAIT UNTIL node:eta <= (burnDuration/2).
-// 	LOCK throttle to 1.
-// 	WAIT UNTIL time:seconds >= endBurnTime.
-// 	LOCK throttle to 0.
-// }
 
 function executeBurnNodev2 {
 	pushMasterStatus("Node execution mode v2 engaged.").
@@ -190,14 +131,6 @@ function doSafeStage {
 	SET stageCount to stageCount +1.
 }
 
-function jettisonCoiffe {
-	pushMasterStatus("Fairing jettison sequence initiated.").
-	pushMessage("Waiting for atmosphere exit.").
-	pushMessage("Atmosphere limit is " + body:atm:height / 1000 + "Km.").
-	WAIT UNTIL ship:altitude > body:atm:height.
-	doSafeStage(False, "Staging fairing !").
-}
-
 function APOFF {
 	parameter sasM is "PROGRADE".
 	UNLOCK steering.
@@ -206,14 +139,6 @@ function APOFF {
 	WAIT 0.1. // Obligé d'attendre au moins une frame pour que ça passe en SAS PROGRADE, limitation du jeu
 	SET SASMODE to sasM.
 	pushMasterStatus("Autopilot OFF. SAS set to " + sasM + ".").
-}
-
-function orbitNode {
-	local currentApVel is (body:mu * ((2 / (apoapsis + body:radius)) - (1 / ((apoapsis + body:radius*2 + periapsis) / 2))))^0.5.
-
-	local neededVel is ((body:mu * (1 / (body:radius + apoapsis))) ^ 0.5) - currentApVel.
-	local node is NODE(time:seconds+ETA:apoapsis, 0, 0, neededVel).
-	ADD node.
 }
 
 function comparaisonPourcent {
@@ -288,79 +213,13 @@ function orbitTransfer {
 
 createTUIMessageBox().
 
-LOCK throttle to 1.
+pushMasterStatus("Hohmann orbit transfer AP v0.1").
 
-//This is our countdown loop, which cycles from 10 to 0
-pushMasterStatus("LAUNCH SEQUENCE INITIATED").
-WAIT 1.
-//FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
-  //  pushMasterStatus(countdown + "...").
-   // WAIT 1. // pauses the script here for 1 second.
-//}
+WAIT UNTIL RCS.
+WAIT 0.1.
+RCS OFF.
 
-doSafeStage(False, "And we have liftoff !").
-
-// GUIDAGE : Exemple donné avec le code
-// LOCK targetPitch to 88.963 - 1.03287 * alt:radar^0.409511.
-
-// GUIDAGE : Fonction log
-// LOCK targetPitch to -13.3233 * LN(6.03662e-6 * alt:radar).
-
-// GUIDAGE : Fuck it, plagiat time. Merci Reddit.
-LOCK targetPitch to 90 * (1 - (altitude / body:atm:height) ^ 0.5).
-
-SET targetDirection to 90.
-
-WAIT UNTIL alt:radar > 50.
-pushMessage("Tower cleared.").
-
-LOCK steering to heading(0,90). // Fusée pointe droit vers le haut sans roulis
-WAIT UNTIL ship:verticalspeed > 50.
-pushMasterStatus("Beginning roll sequence").
-LOCK steering to heading(targetDirection, targetPitch).
-
-
-UNTIL SHIP:APOAPSIS > 105000 { // TODO : En faire un paramètre réglable par l'utilisateur
-	IF maxThrust = 0 {
-		LOCK throttle to 0.
-		pushMasterStatus("maxThrust is 0 !").
-		WAIT 1.
-		doSafeStage().
-		WAIT 1.
-		LOCK throttle to 1.
-	}
-	IF ship:apoapsis > 50000 {
-		timeToGoodApoapsis().
-	}
-}
-
-pushMasterStatus("Apoapsis > 105 Km").
-
-// TODO : en faire une fonction
-kuniverse:timewarp:cancelwarp().
-
-LOCK throttle to 0.
-// waitAngle("PROGRADE").
-LOCK steering to PROGRADE.
-WAIT 5.
-IF stageCount < 2 {
-	doSafeStage().
-	LOCK throttle to 0.05.
-	WAIT 2.
-	LOCK throttle to 0.
-}
-ELSE {
-	pushMessage("First stage already separated.").
-	pushMessage("Will not stage.").
-}
-
-jettisonCoiffe().
-
-orbitNode().
-
-executeBurnNodev2().
-
-// orbitTransfer(250000).
+orbitTransfer(250000). // TODO : User input
 
 // Compte à rebours déco autopilote
 FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {

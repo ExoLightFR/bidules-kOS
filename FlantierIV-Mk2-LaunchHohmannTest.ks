@@ -111,24 +111,24 @@ function waitAngle {
 	WAIT UNTIL vang(ship:facing:forevector, vector) <2.
 }
 
-// function executeBurnNode {
-// 	pushMasterStatus("Node execution mode engaged.").
-// 	local node is nextnode.
-// 	local burnDuration is nodeBurnDuration(node).
-// 	local endBurnTime is time:seconds + node:eta + burnDuration/2.
-// 	PRINT "EndBurnTime : " + endBurnTime.
-// 	PRINT "Time:seconds : " + time:seconds.
-// 	PRINT "Node:eta : " + node:eta.
-// 	PRINT "burnDuration : " + burnDuration.
-// 	WAIT UNTIL node:eta <= (burnDuration/2 + 60).
-// 	SET nosePoint to node:burnvector.
-// 	LOCK steering to nosePoint.
-// 	WAIT UNTIL vang(ship:facing:vector, nosePoint) < 0.25. // TODO : Faire un truc qui abort tout seul la manoeuvre si t'es pas aligné avant le moment de burn
-// 	WAIT UNTIL node:eta <= (burnDuration/2).
-// 	LOCK throttle to 1.
-// 	WAIT UNTIL time:seconds >= endBurnTime.
-// 	LOCK throttle to 0.
-// }
+function executeBurnNode {
+	pushMasterStatus("Node execution mode engaged.").
+	local node is nextnode.
+	local burnDuration is nodeBurnDuration(node).
+	local endBurnTime is time:seconds + node:eta + burnDuration/2.
+	PRINT "EndBurnTime : " + endBurnTime.
+	PRINT "Time:seconds : " + time:seconds.
+	PRINT "Node:eta : " + node:eta.
+	PRINT "burnDuration : " + burnDuration.
+	WAIT UNTIL node:eta <= (burnDuration/2 + 60).
+	SET nosePoint to node:burnvector.
+	LOCK steering to nosePoint.
+	WAIT UNTIL vang(ship:facing:vector, nosePoint) < 0.25. // TODO : Faire un truc qui abort tout seul la manoeuvre si t'es pas aligné avant le moment de burn
+	WAIT UNTIL node:eta <= (burnDuration/2).
+	LOCK throttle to 1.
+	WAIT UNTIL time:seconds >= endBurnTime.
+	LOCK throttle to 0.
+}
 
 function executeBurnNodev2 {
 	pushMasterStatus("Node execution mode v2 engaged.").
@@ -360,7 +360,7 @@ orbitNode().
 
 executeBurnNodev2().
 
-// orbitTransfer(250000).
+orbitTransfer(250000).
 
 // Compte à rebours déco autopilote
 FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
