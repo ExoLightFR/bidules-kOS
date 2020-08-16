@@ -7,11 +7,12 @@ En fait on m'appelle l'Elon Musk Français.
 - Autres branches *(FlantierIV, PierreMenes, etc)* : Branches de développement, celles sur lesquelles le code se développe. Une fois le code fini, elles sont merge sur la beta.
 
 ## À faire :
-- AP orbite de transfert (fait, besoin de tester en branche beta)
+- Adaptation AP Hohmann (besoin de marcher dans le sens inverse)
 - Sécurité par rapport au timewarp (surtout dans l'AP)
-- AP node plus précis
 - Gérer ou savoir calculer les changements d'inclinaison et de centre d'orbite
+- Lâcher de charge utile automatique
 - Transferts inter-astres
+- AP node plus précis
 - AP de descente et de poser
 - Meilleure UI
 - Pierre Ménès Mk. III
