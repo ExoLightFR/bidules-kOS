@@ -1,47 +1,8 @@
-function createTUIMessageBox {
-	CLEARSCREEN.
-	PRINT "+========================================+".
-	PRINT "|                                        |".
-	PRINT "+========================================+".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "+----------------------------------------+".
-}
-
-// Affiche quelque chose dans la partie supérieure de la TextUserInterface. À utiliser pour infos importantes/statut du vaisseau/manoeuvre en cours.
-function pushMasterStatus {
-	parameter str.
-	parameter line is 1.
-	parameter start is 2.
-
-	PRINT "                                       " AT(start, line).
-	PRINT str:TOUPPER() AT(start, line). // vérifier que ça marche le TOUPPER quand même
-}
-
-// Affiche un message dans la partie inférieur de la TextUserInterface. Et ne marche pas non plus.
-function pushMessage {
-	parameter str.
-	parameter line is 3.
-	parameter start is 2.
-
-	IF NOT (defined pushMessageIncr) {
-		SET pushMessageIncr to 0. // Est set en global
-	}
-
-	IF pushMessageIncr > 3 { // Si la fenêtre Message est pleine, l'effacer et remettre le compteur à zéro
-		PRINT "                                       " AT(start, line + 0).
-		PRINT "                                       " AT(start, line + 1).
-		PRINT "                                       " AT(start, line + 2).
-		PRINT "                                       " AT(start, line + 3).
-		SET pushMessageIncr to 0.
-		}
-
-	SET line to pushMessageIncr + 3. // la ligne à utiliser, incrémente avec le compteur
-	SET pushMessageIncr to pushMessageIncr+1. // Incrémentation du compteur
-
-	PRINT str AT(start, line).
+// Piqué sur le net. Met le vaisseau vers le vecteur demandé. Accessoirement, ne marche pas. À garder pour plus tard.
+function waitAngle {
+	parameter vector.
+	LOCK steering to vector.
+	WAIT UNTIL vang(ship:facing:forevector, vector) <2.
 }
 
 function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus tard.
@@ -128,6 +89,15 @@ function doSafeStage {
 
 function APOFF {
 	parameter sasM is "PROGRADE".
+	parameter countdown is 5.
+
+	IF countdown > 0 {
+		FROM {local i is countdown.} UNTIL i = 0 STEP {SET i to i-1.} DO {
+			pushMasterStatus("Autopilot disconnect in " + i).
+			WAIT 1.
+		}
+	}
+
 	UNLOCK steering.
 	SET ship:control:pilotmainthrottle to 0.
 	UNLOCK throttle.
@@ -143,14 +113,4 @@ function APOFF {
 // ==========================================================================================================================================
 // ==========================================================================================================================================
 
-createTUIMessageBox().
-
-executeBurnNodev2().
-
-// Compte à rebours déco autopilote
-FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
-    pushMasterStatus("Autopilot disconnect in " + countdown).
-    WAIT 1. 
-}
-
-APOFF().
+runpath("0:/FlantierIV-Mk2-UI.ks").
