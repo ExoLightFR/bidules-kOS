@@ -31,7 +31,7 @@ function startTransfer {
 }
 
 function hohmannTransfer {
-	parameter wantedAlt. // TODO : user input function pour wantedAlt
+	parameter wantedAlt is 250000. // TODO : user input function pour wantedAlt
 
 	pushMasterStatus("Hohmann orbit transfer AP v0.2").
 
