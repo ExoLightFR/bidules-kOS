@@ -58,10 +58,6 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 		IF en:ignition and not en:flameout {
 			SET isp to en:isp.
 		}
-
-		ELSE {
-			PRINT "FATAL ERROR : No active engine !".
-		}
 	}
 
 	local mf is ship:mass / constant:e^(dV / (isp * g0)).
@@ -71,27 +67,8 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	RETURN burnDuration.
 }
 
-// function executeBurnNode {
-// 	pushMasterStatus("Node execution mode engaged.").
-// 	local node is nextnode.
-// 	local burnDuration is nodeBurnDuration(node).
-// 	local endBurnTime is time:seconds + node:eta + burnDuration/2.
-// 	PRINT "EndBurnTime : " + endBurnTime.
-// 	PRINT "Time:seconds : " + time:seconds.
-// 	PRINT "Node:eta : " + node:eta.
-// 	PRINT "burnDuration : " + burnDuration.
-// 	WAIT UNTIL node:eta <= (burnDuration/2 + 60).
-// 	SET nosePoint to node:burnvector.
-// 	LOCK steering to nosePoint.
-// 	WAIT UNTIL vang(ship:facing:vector, nosePoint) < 0.25. // TODO : Faire un truc qui abort tout seul la manoeuvre si t'es pas aligné avant le moment de burn
-// 	WAIT UNTIL node:eta <= (burnDuration/2).
-// 	LOCK throttle to 1.
-// 	WAIT UNTIL time:seconds >= endBurnTime.
-// 	LOCK throttle to 0.
-// }
-
 function executeBurnNodev2 {
-	pushMasterStatus("Node execution mode v2.2 engaged.").
+	pushMasterStatus("Node execution mode v2.3 engaged.").
 	local node is nextnode.
 	local ThrottSet is 0.
 	LOCK throttle to ThrottSet.
