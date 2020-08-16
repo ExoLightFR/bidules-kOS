@@ -123,6 +123,7 @@ runpath("0:/FlantierIV-Mk2-NodeAP-Unfucked.ks").
 executeBurnNodev2().
 
 TOGGLE AG1.
+WAIT 1.
 
 runpath("0:/FlantierIV-Mk2-HohmannAP.ks").
 hohmannTransfer(110000).

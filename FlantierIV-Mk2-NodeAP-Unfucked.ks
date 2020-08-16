@@ -64,6 +64,8 @@ function executeBurnNodev2 {
 	}
 
 	LOCK steering to PROGRADE.
+	WAIT 5.
+	REMOVE node.
 }
 
 function doSafeStage {
