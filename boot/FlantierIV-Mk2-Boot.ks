@@ -22,6 +22,8 @@ function bootscreen {
 	PRINT " ".
 }
 
+bootscreen().
+
 ON AG10 {
 	PRINT "Initiating launch sequence.".
 	WAIT 1.
