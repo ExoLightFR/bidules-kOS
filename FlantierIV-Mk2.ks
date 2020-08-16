@@ -13,6 +13,7 @@ function doSafeStage {
 	IF NOT (defined stageCount) {
 		global stageCount is 0.
 	}
+	kuniverse:timewarp:cancelwarp().
 	WAIT UNTIL stage:ready.
 
 	IF mute = False { // En faisant doSafeStage(True), on n'affiche pas de texte de stage.
