@@ -1,3 +1,4 @@
+// Ca marche pas
 core:part:getmodule("kOSProcessor"):doevent("Open Terminal").
 // runpath("0:/FlantierIV-Mk2.ks").
 

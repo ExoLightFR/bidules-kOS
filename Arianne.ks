@@ -1,3 +1,5 @@
+// Ca marche pas
+
 function createTUIMessageBox {
 	CLEARSCREEN.
 	PRINT "+========================================+".
