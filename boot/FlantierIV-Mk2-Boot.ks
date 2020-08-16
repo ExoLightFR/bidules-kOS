@@ -48,6 +48,8 @@ ON AG8 {
 	PRINT "Initiating Hohmann Orbit Transfer Autopilot".
 	WAIT 1.
 	runpath("0:/FlantierIV-Mk2-HohmannAP.ks").
+	hohmannTransfer().
+	APOFF().
 	WAIT 2.
 	bootscreen().
 	PRESERVE.

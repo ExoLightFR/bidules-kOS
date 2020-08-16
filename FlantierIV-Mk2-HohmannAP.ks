@@ -26,7 +26,7 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 }
 
 function hohmannTransfer {
-	parameter wantedAlt. // TODO : user input function pour wantedAlt
+	parameter wantedAlt is 250000. // TODO : user input function pour wantedAlt
 
 	pushMasterStatus("Hohmann orbit transfer AP v0.2").
 
@@ -90,7 +90,3 @@ function hohmannTransfer {
 
 runpath("0:/FlantierIV-Mk2-UI.ks").
 runpath("0:/FlantierIV-Mk2-NodeAP-Unfucked.ks").
-
-hohmannTransfer(110000).
-
-APOFF().
