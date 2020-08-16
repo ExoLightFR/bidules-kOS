@@ -25,8 +25,13 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	RETURN burnDuration.
 }
 
+function startTransfer {
+	parameter wantedAlt is 250000. // TODO : User input
+	hohmannTransfer(wantedAlt).
+}
+
 function hohmannTransfer {
-	parameter wantedAlt is 250000. // TODO : user input function pour wantedAlt
+	parameter wantedAlt. // TODO : user input function pour wantedAlt
 
 	pushMasterStatus("Hohmann orbit transfer AP v0.2").
 
