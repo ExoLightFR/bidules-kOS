@@ -38,7 +38,7 @@ function hohmannTransfer {
 
 	local transferAp is body:radius + wantedAlt.
 	local transferPe is body:radius + periapsis.
-	local transferA is (body:radius * 2 + transferAp + transferPe) / 2.
+	local transferA is (transferAp + transferPe) / 2.
 
 	local transferApVel is (body:mu * ((2 / transferAp) - (1 / transferA)))^0.5.
 	local transferPeVel is (body:mu * ((2 / transferPe) - (1 / transferA)))^0.5.
@@ -91,6 +91,6 @@ function hohmannTransfer {
 runpath("0:/FlantierIV-Mk2-UI.ks").
 runpath("0:/FlantierIV-Mk2-NodeAP-Unfucked.ks").
 
-hohmannTransfer(250000).
+hohmannTransfer(150000).
 
 APOFF().
