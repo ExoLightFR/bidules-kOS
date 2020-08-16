@@ -90,28 +90,40 @@ createTUIMessageBox().
 
 LOCK throttle to 1.
 
+SET northPole TO latlng(90,0).
+LOCK hdg TO mod(360 - northPole:bearing,360).
+
+global capLancement is hdg.
+
 pushMasterStatus("LAUNCH SEQUENCE INITIATED").
 WAIT 1.
 doSafeStage(False, "And we have liftoff !").
 
-// LOCK targetPitch to 90 * (1 - (altitude / body:atm:height) ^ 0.5).
-// SET targetDirection to 90.
+LOCK steering to heading(capLancement,90).
+
+LOCK targetPitch to 90 * (1 - (altitude / body:atm:height) ^ 0.5).
+SET targetDirection to 90.
 
 WAIT UNTIL alt:radar > 50.
 pushMessage("Tower cleared.").
 
-LOCK steering to heading(0,90). // Fusée pointe droit vers le haut sans roulis
 WAIT UNTIL ship:verticalspeed > 50.
 pushMasterStatus("Beginning roll sequence").
+LOCK steering to heading(targetDirection, 90).
+
+WAIT 10.
 LOCK steering to heading(targetDirection, targetPitch).
 
 UNTIL SHIP:APOAPSIS > 105000 { // TODO : En faire un paramètre réglable par l'utilisateur
-	ON eng:Flameout {
-		pushMasterStatus("Engine Flameout !").
-		pushMessage("Boosters are empty !").
-		WAIT 1.
-		doSafeStage().
-		WAIT 1.
+	LIST engines in myEngines.
+	FOR en in myEngines {
+		ON eng:Flameout {
+			pushMasterStatus("Engine Flameout !").
+			pushMessage("Boosters are empty !").
+			WAIT 1.
+			doSafeStage().
+			WAIT 1.
+		}
 	}
 }
 

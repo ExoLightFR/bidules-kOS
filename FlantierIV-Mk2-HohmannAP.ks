@@ -1,47 +1,8 @@
-function createTUIMessageBox {
-	CLEARSCREEN.
-	PRINT "+========================================+".
-	PRINT "|                                        |".
-	PRINT "+========================================+".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "+----------------------------------------+".
-}
-
-// Affiche quelque chose dans la partie supérieure de la TextUserInterface. À utiliser pour infos importantes/statut du vaisseau/manoeuvre en cours.
-function pushMasterStatus {
-	parameter str.
-	parameter line is 1.
-	parameter start is 2.
-
-	PRINT "                                       " AT(start, line).
-	PRINT str:TOUPPER() AT(start, line). // vérifier que ça marche le TOUPPER quand même
-}
-
-// Affiche un message dans la partie inférieur de la TextUserInterface. Et ne marche pas non plus.
-function pushMessage {
-	parameter str.
-	parameter line is 3.
-	parameter start is 2.
-
-	IF NOT (defined pushMessageIncr) {
-		SET pushMessageIncr to 0. // Est set en global
-	}
-
-	IF pushMessageIncr > 3 { // Si la fenêtre Message est pleine, l'effacer et remettre le compteur à zéro
-		PRINT "                                       " AT(start, line + 0).
-		PRINT "                                       " AT(start, line + 1).
-		PRINT "                                       " AT(start, line + 2).
-		PRINT "                                       " AT(start, line + 3).
-		SET pushMessageIncr to 0.
-		}
-
-	SET line to pushMessageIncr + 3. // la ligne à utiliser, incrémente avec le compteur
-	SET pushMessageIncr to pushMessageIncr+1. // Incrémentation du compteur
-
-	PRINT str AT(start, line).
+function comparaisonPourcent {
+	parameter valeurInit.
+	parameter valeurFinale.
+	local diffPourcent is (valeurFinale - valeurInit) / valeurInit * 100.
+	RETURN diffPourcent.
 }
 
 function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus tard.
@@ -64,92 +25,15 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	RETURN burnDuration.
 }
 
-// Met le vaisseau vers le vecteur demandé. Accessoirement, ne marche pas.
-function waitAngle {
-	parameter vector.
-	LOCK steering to vector.
-	WAIT UNTIL vang(ship:facing:forevector, vector) <2.
+function startTransfer {
+	parameter wantedAlt is 250000. // TODO : User input
+	hohmannTransfer(wantedAlt).
 }
 
-function executeBurnNodev2 {
-	pushMasterStatus("Node execution mode v2 engaged.").
-	local node is nextnode.
-	local ThrottSet is 0.
-	LOCK throttle to ThrottSet.
-	local max_acc is ship:maxthrust/ship:mass.
-	local burnDuration is nodeBurnDuration(node).
-	// local burnDuration is node:deltav:mag/max_acc.
+function hohmannTransfer {
+	parameter wantedAlt is 250000. // TODO : user input function pour wantedAlt
 
-	WAIT UNTIL node:eta <= (burnDuration / 2 + 20). // 20s avant le début du burn
-	kuniverse:timewarp:cancelwarp(). // Stop le timewarp
-	LOCK steering to node:burnvector.
-	WAIT UNTIL vang(ship:facing:vector, node:burnvector) < 0.25. // Attendre d'être aligné avec le burnvector
-	
-	local startTime is time:seconds + node:eta - burnDuration / 2.
-	WAIT UNTIL time:seconds >= startTime.
-	local initialBurnVector is node:burnvector. // Pour comparer le vecteur initial avec le vecteur mis à jour dans la boucle
-	PRINT time:seconds.
-	PRINT startTime.
-	
-	local done is False.
-	UNTIL done {
-
-		SET max_acc to ship:maxthrust/ship:mass.
-		SET burnDuration TO node:deltav:mag/max_acc. // 
-		SET ThrottSet TO min(burnDuration, 1).
-
-			IF node:burnvector:mag < 0.1 {
-				PRINT "IF burnvector < 0.1 (2)".
-				WAIT UNTIL vdot(initialBurnVector, node:burnvector) < 0.
-				LOCK throttle to 0.
-				SET done to True.
-				PRINT "Done True".
-			}
-	}
-
-	LOCK steering to PROGRADE.
-}
-
-function doSafeStage {
-	parameter mute is False.
-	parameter str is "default".
-	IF NOT (defined stageCount) {
-		global stageCount is 0.
-	}
-	WAIT UNTIL stage:ready.
-
-	IF mute = False { // En faisant doSafeStage(True), on n'affiche pas de texte de stage.
-
-		IF str = "default" {
-			pushMasterStatus("STAGING !").
-		}
-		ELSE {
-			pushMasterStatus(str).
-		}
-	}
-	STAGE.
-	SET stageCount to stageCount +1.
-}
-
-function APOFF {
-	parameter sasM is "PROGRADE".
-	UNLOCK steering.
-	UNLOCK throttle.
-	SAS ON.
-	WAIT 0.1. // Obligé d'attendre au moins une frame pour que ça passe en SAS PROGRADE, limitation du jeu
-	SET SASMODE to sasM.
-	pushMasterStatus("Autopilot OFF. SAS set to " + sasM + ".").
-}
-
-function comparaisonPourcent {
-	parameter valeurInit.
-	parameter valeurFinale.
-	local diffPourcent is (valeurFinale - valeurInit) / valeurInit * 100.
-	RETURN diffPourcent.
-}
-
-function orbitTransfer {
-	parameter wantedAlt. // TODO : user input function pour wantedAlt
+	pushMasterStatus("Hohmann orbit transfer AP v0.2").
 
 	local currentA is (body:radius * 2 + apoapsis + periapsis) / 2.
 	local currentApVel is (body:mu * ((2 / (body:radius + apoapsis)) - (1 / currentA)))^0.5.
@@ -159,7 +43,7 @@ function orbitTransfer {
 
 	local transferAp is body:radius + wantedAlt.
 	local transferPe is body:radius + periapsis.
-	local transferA is (body:radius * 2 + transferAp + transferPe) / 2.
+	local transferA is (transferAp + transferPe) / 2.
 
 	local transferApVel is (body:mu * ((2 / transferAp) - (1 / transferA)))^0.5.
 	local transferPeVel is (body:mu * ((2 / transferPe) - (1 / transferA)))^0.5.
@@ -170,13 +54,11 @@ function orbitTransfer {
 		pushMessage("Periapsis too close, waiting for next orbit").
 		local periapsisTime is time:seconds + ETA:periapsis.
 		WAIT UNTIL time:seconds > periapsisTime + 2.
-		PRINT("Waited until periapis passed").
+		pushMessage("Waited until periapis passed").
 	}
 
 	local node1 is NODE(time:seconds+ETA:periapsis, 0, 0, deltaV1).
 	ADD node1.
-	// Idée, mettre les deux nodes en même temps, à la suite ?
-	// Faudrait un AP plus précis pour la pratique mais ça permettrait de vérifier la théorie
 
 	executeBurnNodev2().
 	WAIT 5.
@@ -211,20 +93,5 @@ function orbitTransfer {
 // ==========================================================================================================================================
 // ==========================================================================================================================================
 
-createTUIMessageBox().
-
-pushMasterStatus("Hohmann orbit transfer AP v0.1").
-
-WAIT UNTIL RCS.
-WAIT 0.1.
-RCS OFF.
-
-orbitTransfer(250000). // TODO : User input
-
-// Compte à rebours déco autopilote
-FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
-    pushMasterStatus("Autopilot disconnect in " + countdown).
-    WAIT 1. 
-}
-
-APOFF().
+runpath("0:/FlantierIV-Mk2-UI.ks").
+runpath("0:/FlantierIV-Mk2-NodeAP-Unfucked.ks").
