@@ -95,7 +95,7 @@ UNTIL SHIP:APOAPSIS > 100000 { // TODO : En faire un paramètre réglable par l'
 	}
 }
 
-pushMasterStatus("Apoapsis > 105 Km").
+pushMasterStatus("Apoapsis > 100 Km").
 
 // TODO : en faire une fonction
 kuniverse:timewarp:cancelwarp().
