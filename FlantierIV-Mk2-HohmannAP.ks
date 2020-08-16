@@ -91,6 +91,6 @@ function hohmannTransfer {
 runpath("0:/FlantierIV-Mk2-UI.ks").
 runpath("0:/FlantierIV-Mk2-NodeAP-Unfucked.ks").
 
-hohmannTransfer(150000).
+hohmannTransfer(110000).
 
 APOFF().

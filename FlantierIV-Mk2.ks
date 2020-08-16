@@ -81,7 +81,7 @@ WAIT UNTIL ship:verticalspeed > 50.
 pushMasterStatus("Beginning roll sequence").
 LOCK steering to heading(targetDirection, targetPitch).
 
-UNTIL SHIP:APOAPSIS > 105000 { // TODO : En faire un paramètre réglable par l'utilisateur
+UNTIL SHIP:APOAPSIS > 100000 { // TODO : En faire un paramètre réglable par l'utilisateur
 	IF maxThrust = 0 {
 		LOCK throttle to 0.
 		pushMasterStatus("maxThrust is 0 !").
@@ -107,7 +107,7 @@ WAIT 5.
 IF stageCount < 2 {
 	doSafeStage().
 	LOCK throttle to 0.05.
-	WAIT 2.
+	WAIT 1.
 	LOCK throttle to 0.
 }
 ELSE {
