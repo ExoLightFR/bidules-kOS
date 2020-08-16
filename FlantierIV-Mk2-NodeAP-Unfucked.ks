@@ -74,8 +74,8 @@ function executeBurnNodev2 {
 	LOCK throttle to ThrottSet.
 	local burnDuration is nodeBurnDuration(node).
 
-	WAIT UNTIL node:eta <= (burnDuration / 2) + 25.
-	WAIT 3.
+	WAIT UNTIL node:eta <= (burnDuration / 2) + 30.
+	WAIT 1.
 	SAS OFF.
 	WAIT 1.
 	LOCK steering to node:burnvector.
@@ -144,12 +144,6 @@ function APOFF {
 // ==========================================================================================================================================
 
 createTUIMessageBox().
-
-pushMasterStatus("Node Autopilot Armed").
-
-WAIT UNTIL RCS.
-WAIT 0.1.
-RCS OFF.
 
 executeBurnNodev2().
 
