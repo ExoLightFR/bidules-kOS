@@ -1,47 +1,8 @@
-function createTUIMessageBox {
-	CLEARSCREEN.
-	PRINT "+========================================+".
-	PRINT "|                                        |".
-	PRINT "+========================================+".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "|                                        |".
-	PRINT "+----------------------------------------+".
-}
-
-// Affiche quelque chose dans la partie supérieure de la TextUserInterface. À utiliser pour infos importantes/statut du vaisseau/manoeuvre en cours.
-function pushMasterStatus {
-	parameter str.
-	parameter line is 1.
-	parameter start is 2.
-
-	PRINT "                                       " AT(start, line).
-	PRINT str:TOUPPER() AT(start, line). // vérifier que ça marche le TOUPPER quand même
-}
-
-// Affiche un message dans la partie inférieur de la TextUserInterface. Et ne marche pas non plus.
-function pushMessage {
-	parameter str.
-	parameter line is 3.
-	parameter start is 2.
-
-	IF NOT (defined pushMessageIncr) {
-		SET pushMessageIncr to 0. // Est set en global
-	}
-
-	IF pushMessageIncr > 3 { // Si la fenêtre Message est pleine, l'effacer et remettre le compteur à zéro
-		PRINT "                                       " AT(start, line + 0).
-		PRINT "                                       " AT(start, line + 1).
-		PRINT "                                       " AT(start, line + 2).
-		PRINT "                                       " AT(start, line + 3).
-		SET pushMessageIncr to 0.
-		}
-
-	SET line to pushMessageIncr + 3. // la ligne à utiliser, incrémente avec le compteur
-	SET pushMessageIncr to pushMessageIncr+1. // Incrémentation du compteur
-
-	PRINT str AT(start, line).
+// Piqué sur le net. Met le vaisseau vers le vecteur demandé. Accessoirement, ne marche pas. À garder pour plus tard.
+function waitAngle {
+	parameter vector.
+	LOCK steering to vector.
+	WAIT UNTIL vang(ship:facing:forevector, vector) <2.
 }
 
 function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus tard.
@@ -50,10 +11,13 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	local isp is 0.
 	local g0 is constant:g0.
 
+	// TODO : meilleur calcul de l'ISP :
+	// sum the mass flow and thrust for all engines
+	// then calculate the ISP from the total thrust and mass flow
 	LIST engines in myEngines.
 	FOR en in myEngines {
 		IF en:ignition and not en:flameout {
-			SET isp to isp + (en:isp * (en:availableThrust / ship:availableThrust)).
+			SET isp to en:isp.
 		}
 	}
 
@@ -64,34 +28,15 @@ function nodeBurnDuration { // Honteusement plagié. Sera peut être utile plus 
 	RETURN burnDuration.
 }
 
-// function executeBurnNode {
-// 	pushMasterStatus("Node execution mode engaged.").
-// 	local node is nextnode.
-// 	local burnDuration is nodeBurnDuration(node).
-// 	local endBurnTime is time:seconds + node:eta + burnDuration/2.
-// 	PRINT "EndBurnTime : " + endBurnTime.
-// 	PRINT "Time:seconds : " + time:seconds.
-// 	PRINT "Node:eta : " + node:eta.
-// 	PRINT "burnDuration : " + burnDuration.
-// 	WAIT UNTIL node:eta <= (burnDuration/2 + 60).
-// 	SET nosePoint to node:burnvector.
-// 	LOCK steering to nosePoint.
-// 	WAIT UNTIL vang(ship:facing:vector, nosePoint) < 0.25. // TODO : Faire un truc qui abort tout seul la manoeuvre si t'es pas aligné avant le moment de burn
-// 	WAIT UNTIL node:eta <= (burnDuration/2).
-// 	LOCK throttle to 1.
-// 	WAIT UNTIL time:seconds >= endBurnTime.
-// 	LOCK throttle to 0.
-// }
-
 function executeBurnNodev2 {
-	pushMasterStatus("Node execution mode v2.2 engaged.").
+	pushMasterStatus("Node execution mode v2.3 engaged.").
 	local node is nextnode.
 	local ThrottSet is 0.
 	LOCK throttle to ThrottSet.
 	local burnDuration is nodeBurnDuration(node).
 
-	WAIT UNTIL node:eta <= (burnDuration / 2) + 25.
-	WAIT 3.
+	WAIT UNTIL node:eta <= (burnDuration / 2) + 30.
+	WAIT 1.
 	SAS OFF.
 	WAIT 1.
 	LOCK steering to node:burnvector.
@@ -109,6 +54,7 @@ function executeBurnNodev2 {
 		SET burnDuration TO nodeBurnDuration(node). // 
 		SET ThrottSet TO min(burnDuration, 1).
 
+			// TODO : autre moyen de finir le burn pour éviter des délais causés par une boucle ??
 			IF node:burnvector:mag < 0.1 {
 				WAIT UNTIL vdot(initialBurnVector, node:burnvector) < 0.
 				// WAIT UNTIL vang(initialBurnVector, node:burnvector) > 5.
@@ -118,6 +64,8 @@ function executeBurnNodev2 {
 	}
 
 	LOCK steering to PROGRADE.
+	WAIT 5.
+	REMOVE node.
 }
 
 function doSafeStage {
@@ -143,6 +91,15 @@ function doSafeStage {
 
 function APOFF {
 	parameter sasM is "PROGRADE".
+	parameter countdown is 5.
+
+	IF countdown > 0 {
+		FROM {local i is countdown.} UNTIL i = 0 STEP {SET i to i-1.} DO {
+			pushMasterStatus("Autopilot disconnect in " + i).
+			WAIT 1.
+		}
+	}
+
 	UNLOCK steering.
 	SET ship:control:pilotmainthrottle to 0.
 	UNLOCK throttle.
@@ -158,20 +115,4 @@ function APOFF {
 // ==========================================================================================================================================
 // ==========================================================================================================================================
 
-createTUIMessageBox().
-
-pushMasterStatus("Node Autopilot Armed").
-
-WAIT UNTIL RCS.
-WAIT 0.1.
-RCS OFF.
-
-executeBurnNodev2().
-
-// Compte à rebours déco autopilote
-FROM {local countdown is 5.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
-    pushMasterStatus("Autopilot disconnect in " + countdown).
-    WAIT 1. 
-}
-
-APOFF().
+runpath("0:/FlantierIV-Mk2-UI.ks").
