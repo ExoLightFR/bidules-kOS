@@ -75,6 +75,7 @@ WAIT UNTIL ship:verticalspeed > 40.
 pushMasterStatus("Commencing roll sequence.").
 LOCK steering to heading(targetDirection, targetPitch).
 
+SET oldThrust to ship:availableThrust.
 UNTIL SHIP:APOAPSIS > targetAp { // TODO : En faire un paramètre réglable par l'utilisateur
 
 	IF ship:availablethrust < (oldThrust - 10) {
