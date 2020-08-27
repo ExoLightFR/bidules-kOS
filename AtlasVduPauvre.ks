@@ -96,19 +96,13 @@ LOCK throttle TO 0.
 pushMasterStatus("Apoapsis of " + targetAp + " Km reached").
 
 LOCK steering to prograde.
-WAIT UNTIL vang(ship:facing:vector, prograde) < 0.5.
-
-IF stageCount < 3 {
-    WAIT 1.
-	doSafeStage().
-}
-ELSE {
-	pushMessage("First stage already separated."). // Ne sert à rien pour le moment, cause coiffe
-	pushMessage("Will not stage.").
-}
+WAIT UNTIL vang(ship:facing:vector, prograde:vector) < 0.5.
 
 jettisonCoiffev2().
+WAIT 5.
 doSafeStage().
+
+orbitNode().
 
 runpath("0:/FlantierIV-Mk2-NodeAP-Unfucked.ks").
 executeBurnNodev2().
